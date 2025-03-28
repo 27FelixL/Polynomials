@@ -112,7 +112,7 @@ class LinkedList:
     # You must keep the terms in descending order by exponent.
     def insert_term(self, coeff, exp):
         """Insert"""
-        if coeff == 0:
+        if coeff == 0:  # Ignore zero coefficient terms
             return
         new_node = Node(coeff, exp)
         if self.head is None or self.head.exp < exp:
@@ -124,7 +124,7 @@ class LinkedList:
             prev, current = current, current.next
         if current and current.exp == exp:
             current.coeff += coeff
-            if current.coeff == 0:
+            if current.coeff == 0:  # Remove zero coefficient terms
                 if prev:
                     prev.next = current.next
                 else:
@@ -156,12 +156,20 @@ class LinkedList:
         """Multiplying"""
         result = LinkedList()
         t1 = self.head
+        temp_dict = {}
         while t1:
             t2 = p.head
             while t2:
-                result.insert_term(t1.coeff * t2.coeff, t1.exp + t2.exp)
+                new_exp = t1.exp + t2.exp
+                new_coeff = t1.coeff * t2.coeff
+                if new_exp in temp_dict:
+                    temp_dict[new_exp] += new_coeff
+                else:
+                    temp_dict[new_exp] = new_coeff
                 t2 = t2.next
             t1 = t1.next
+        for exp in sorted(temp_dict.keys(), reverse=True):
+            result.insert_term(temp_dict[exp], exp)
         return result
 
     def __str__(self):
@@ -172,7 +180,7 @@ class LinkedList:
         current = self.head
         while current:
             terms.append(f"({current.coeff}, {current.exp})")
-            current = current.next       
+            current = current.next
         return " + ".join(terms)
 
 
@@ -185,8 +193,6 @@ def main():
     # get sum of p and q as a new linked list and print sum
 
     # get product of p and q as a new linked list and print product
-    pass
-
 
 if __name__ == "__main__":
     main()
