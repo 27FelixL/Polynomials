@@ -112,24 +112,32 @@ class LinkedList:
     # You must keep the terms in descending order by exponent.
     def insert_term(self, coeff, exp):
         """Insert"""
-        if coeff == 0:  # Ignore zero coefficient terms
-            return
+        if coeff == 0:
+            return  # Ignore zero coefficient terms
+        
         new_node = Node(coeff, exp)
+        
+        # If the list is empty or new term has a larger exponent than head
         if self.head is None or self.head.exp < exp:
             new_node.next = self.head
             self.head = new_node
             return
+        
         prev, current = None, self.head
+
+        # Traverse the list to find correct insertion point
         while current and current.exp > exp:
             prev, current = current, current.next
+
         if current and current.exp == exp:
-            current.coeff += coeff
+            current.coeff += coeff  # Combine like terms
             if current.coeff == 0:  # Remove zero coefficient terms
                 if prev:
                     prev.next = current.next
                 else:
                     self.head = current.next
             return
+
         new_node.next = current
         if prev:
             prev.next = new_node
@@ -140,6 +148,7 @@ class LinkedList:
         """adding"""
         result = LinkedList()
         t1, t2 = self.head, p.head
+
         while t1 or t2:
             if t1 and (not t2 or t1.exp > t2.exp):
                 result.insert_term(t1.coeff, t1.exp)
@@ -148,15 +157,19 @@ class LinkedList:
                 result.insert_term(t2.coeff, t2.exp)
                 t2 = t2.next
             else:
-                result.insert_term(t1.coeff + t2.coeff, t1.exp)
+                sum_coeff = t1.coeff + t2.coeff
+                if sum_coeff != 0:  # Avoid adding zero terms
+                    result.insert_term(sum_coeff, t1.exp)
                 t1, t2 = t1.next, t2.next
+
         return result
 
     def mult(self, p):
         """Multiplying"""
         result = LinkedList()
+        temp_dict = {}  # Dictionary to store coefficients by exponent
+
         t1 = self.head
-        temp_dict = {}
         while t1:
             t2 = p.head
             while t2:
@@ -168,21 +181,26 @@ class LinkedList:
                     temp_dict[new_exp] = new_coeff
                 t2 = t2.next
             t1 = t1.next
+
+        # Insert terms into result list in descending order of exponent
         for exp in sorted(temp_dict.keys(), reverse=True):
-            result.insert_term(temp_dict[exp], exp)
+            if temp_dict[exp] != 0:  # Avoid adding zero terms
+                result.insert_term(temp_dict[exp], exp)
+
         return result
 
     def __str__(self):
         """String return"""
         if not self.head:
-            return ""
+            return "0"
+        
         terms = []
         current = self.head
         while current:
             terms.append(f"({current.coeff}, {current.exp})")
             current = current.next
+        
         return " + ".join(terms)
-
 
 def main():
     """Main"""
