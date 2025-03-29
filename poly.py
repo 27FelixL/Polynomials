@@ -195,6 +195,27 @@ def main():
     # get sum of p and q as a new linked list and print sum
 
     # get product of p and q as a new linked list and print product
+    n = int(input())  # The number of terms for polynomial p
+    p_terms = []
+    for _ in range(n):
+        coeff, exp = map(int, input().split())
+        p_terms.append((coeff, exp))
+    input()
+    m = int(input())
+    q_terms = []
+    for _ in range(m):
+        coeff, exp = map(int, input().split())
+        q_terms.append((coeff, exp))
+    p = LinkedList()
+    q = LinkedList()
+    for coeff, exp in p_terms:
+        p.insert_term(coeff, exp)
+    for coeff, exp in q_terms:
+        q.insert_term(coeff, exp)
+    sum_poly = p.add(q)
+    product_poly = p.mult(q)
+    print(str(sum_poly))
+    print(str(product_poly))
 
 if __name__ == "__main__":
     main()
