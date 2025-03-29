@@ -106,100 +106,84 @@ class LinkedList:
         # dummy node in your calculation, it will throw an error.
         # self.dummy = Node(None, None)
         self.head = None
+        self.dummy = Node(None, None)
 
     # Insert the term with the coefficient coeff and exponent exp into the polynomial.
     # If a term with that exponent already exists, add the coefficients together.
     # You must keep the terms in descending order by exponent.
     def insert_term(self, coeff, exp):
-        """Insert"""
+        """Insert a term into the polynomial linked list in descending exponent order."""
         if coeff == 0:
-            return  # Ignore zero coefficient terms
-        
+            return
+        prev = self.dummy
+        curr = self.dummy.next
+        while curr and curr.exp > exp:
+            prev = curr
+            curr = curr.next
+        if curr and curr.exp == exp:
+            curr.coeff += coeff
+            if curr.coeff == 0:
+                prev.next = curr.next
+            return
         new_node = Node(coeff, exp)
-        
-        # If the list is empty or new term has a larger exponent than head
-        if self.head is None or self.head.exp < exp:
-            new_node.next = self.head
-            self.head = new_node
-            return
-        
-        prev, current = None, self.head
-
-        # Traverse the list to find correct insertion point
-        while current and current.exp > exp:
-            prev, current = current, current.next
-
-        if current and current.exp == exp:
-            current.coeff += coeff  # Combine like terms
-            if current.coeff == 0:  # Remove zero coefficient terms
-                if prev:
-                    prev.next = current.next
-                else:
-                    self.head = current.next
-            return
-
-        new_node.next = current
-        if prev:
-            prev.next = new_node
-        else:
-            self.head = new_node
+        prev.next = new_node
+        new_node.next = curr
+        if self.head == self.dummy.next or self.head is None:
+            self.head = self.dummy.next
 
     def add(self, p):
-        """adding"""
+        """Add two polynomials represented as linked lists."""
         result = LinkedList()
-        t1, t2 = self.head, p.head
-
-        while t1 or t2:
-            if t1 and (not t2 or t1.exp > t2.exp):
-                result.insert_term(t1.coeff, t1.exp)
-                t1 = t1.next
-            elif t2 and (not t1 or t2.exp > t1.exp):
-                result.insert_term(t2.coeff, t2.exp)
-                t2 = t2.next
+        curr1, curr2 = self.head, p.head
+        prev = None
+        while curr1 or curr2:
+            if curr2 is None or (curr1 and curr1.exp > curr2.exp):
+                new_node = Node(curr1.coeff, curr1.exp)
+                curr1 = curr1.next
+            elif curr1 is None or curr2.exp > curr1.exp:
+                new_node = Node(curr2.coeff, curr2.exp)
+                curr2 = curr2.next
             else:
-                sum_coeff = t1.coeff + t2.coeff
-                if sum_coeff != 0:  # Avoid adding zero terms
-                    result.insert_term(sum_coeff, t1.exp)
-                t1, t2 = t1.next, t2.next
-
+                sum_coeff = curr1.coeff + curr2.coeff
+                if sum_coeff == 0:
+                    curr1, curr2 = curr1.next, curr2.next
+                    continue
+                new_node = Node(sum_coeff, curr1.exp)
+                curr1, curr2 = curr1.next, curr2.next
+            if prev:
+                prev.next = new_node
+            else:
+                result.head = new_node
+            prev = new_node
         return result
 
     def mult(self, p):
         """Multiplying"""
         result = LinkedList()
-        temp_dict = {}  # Dictionary to store coefficients by exponent
-
-        t1 = self.head
-        while t1:
-            t2 = p.head
-            while t2:
-                new_exp = t1.exp + t2.exp
-                new_coeff = t1.coeff * t2.coeff
-                if new_exp in temp_dict:
-                    temp_dict[new_exp] += new_coeff
-                else:
-                    temp_dict[new_exp] = new_coeff
-                t2 = t2.next
-            t1 = t1.next
-
-        # Insert terms into result list in descending order of exponent
+        temp_dict = {}
+        current1 = self.dummy.next
+        while current1:
+            current2 = p.dummy.next
+            while current2:
+                new_exp = current1.exp + current2.exp
+                new_coeff = current1.coeff * current2.coeff
+                temp_dict[new_exp] = temp_dict.get(new_exp, 0) + new_coeff
+                current2 = current2.next
+            current1 = current1.next
         for exp in sorted(temp_dict.keys(), reverse=True):
-            if temp_dict[exp] != 0:  # Avoid adding zero terms
+            if temp_dict[exp] != 0:
                 result.insert_term(temp_dict[exp], exp)
-
         return result
 
     def __str__(self):
         """String return"""
-        if not self.head:
-            return "0"
-        
+        if self.dummy.next is None:
+            return ""
         terms = []
-        current = self.head
+        current = self.dummy.next
         while current:
-            terms.append(f"({current.coeff}, {current.exp})")
+            terms.append(str(current))
             current = current.next
-        
         return " + ".join(terms)
 
 def main():
